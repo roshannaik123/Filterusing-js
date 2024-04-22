@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+            font-family: sans-serif;
+        }
+
+        .main {
+            width: 1320px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 40px 0px;
+        }
+
+        .product {
+            flex-basis: 75%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .filterBox {
+            flex-basis: 23%;
+        }
+
+        .CategoryList {
+            margin-top: 20px;
+        }
+
+        .CategoryList label {
+            display: block;
+            padding: 10px 0px;
+        }
+
+        .productItems {
+            flex-basis: 31%;
+            margin: 10px 0px;
+            margin-bottom: 0px 0px 10px 2px;
+            background-color: #ccc;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .productItems img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .productItems p {
+            margin-top: 10px;
+        }
+
+        .productItems h3 {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Our Products</h1>
+    <div class="main">
+        <div class="filterBox">
+            <h2>Category</h2>
+
+            <div class="CategoryList">
+                <!-- Categories will be dynamically generated here -->
+            </div>
+        </div>
+        <div class="product"></div>
+    </div>
+
+    <script>
+        let allCat = []; // Array to store all categories
+
+        async function displayProduct(allCheckCat = []) {
+            const productDiv = document.querySelector(".product");
+            productDiv.innerHTML = '';
+            const product = await fetch('https://fakestoreapi.com/products');
+            const finalProduct = await product.json();
+
+            finalProduct.forEach(element => {
+                // Add category to the allCat array if it's not already included
+                if (!allCat.includes(element.category)) {
+                    allCat.push(element.category);
+                    const categoryLabel = document.createElement('label');
+                    categoryLabel.innerHTML = `<input type="checkbox" onclick="categoryfilter()" value="${element.category}">${element.category}`;
+                    document.querySelector('.CategoryList').appendChild(categoryLabel);
+                }
+                if (allCheckCat.length === 0 || allCheckCat.includes(element.category)) {
+                    // Product display
+                    const productItem = document.createElement('div');
+                    productItem.classList.add('productItems');
+                    productItem.innerHTML = `
+                        <img src="${element.image}" alt="">
+                        <p>${element.price} | ${element.rating.rate}</p>
+                        <h3>${element.title}</h3>`;
+                    productDiv.appendChild(productItem);
+                }
+            });
+        }
+
+        displayProduct();
+
+        function categoryfilter() {
+            let checkboxes = document.querySelectorAll('.CategoryList input[type="checkbox"]:checked');
+            let checkData = [];
+            checkboxes.forEach((e) => {
+                if (e.checked) {
+                    checkData.push(e.value);
+                }
+            });
+            displayProduct(checkData);
+        }
+    </script>
+</body>
+
+</html>
